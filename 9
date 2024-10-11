@@ -1,0 +1,122 @@
+-- Create the UI
+local Player = game.Players.LocalPlayer
+local GUI = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TargetPlayerLabel = Instance.new("TextLabel")
+local TargetPlayerDropdown = Instance.new("Dropdown")
+local ToggleButton = Instance.new("TextButton")
+local ToggleLabel = Instance.new("TextLabel")
+local FPSPingLabel = Instance.new("TextLabel")
+
+GUI.Name = "RPGSpammerGUI"
+MainFrame.Name = "MainFrame"
+MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+MainFrame.BackgroundTransparency = 0.5
+MainFrame.Position = UDim2.new(0, 0, 0, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 130)
+
+TargetPlayerLabel.Name = "TargetPlayerLabel"
+TargetPlayerLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TargetPlayerLabel.BackgroundTransparency = 0.5
+TargetPlayerLabel.Position = UDim2.new(0, 10, 0, 10)
+TargetPlayerLabel.Size = UDim2.new(0, 180, 0, 20)
+TargetPlayerLabel.Font = Enum.Font.SourceSans
+TargetPlayerLabel.FontSize = Enum.FontSize.Size14
+TargetPlayerLabel.Text = "Target Player:"
+TargetPlayerLabel.TextColor3 = Color3.new(1, 1, 1)
+
+TargetPlayerDropdown.Name = "TargetPlayerDropdown"
+TargetPlayerDropdown.BackgroundColor3 = Color3.new(0, 0, 0)
+TargetPlayerDropdown.BackgroundTransparency = 0.5
+TargetPlayerDropdown.Position = UDim2.new(0, 10, 0, 35)
+TargetPlayerDropdown.Size = UDim2.new(0, 180, 0, 20)
+TargetPlayerDropdown.Font = Enum.Font.SourceSans
+TargetPlayerDropdown.FontSize = Enum.FontSize.Size14
+
+-- Populate the dropdown list with player names
+local players = game.Players:GetPlayers()
+for _, player in pairs(players) do
+    if player ~= game.Players.LocalPlayer then
+        local option = Instance.new("DropdownOption")
+        option.Text = player.Name
+        option.Parent = TargetPlayerDropdown
+    end
+end
+
+ToggleButton.Name = " ToggleButton"
+ToggleButton.BackgroundColor3 = Color3.new(0, 0, 0)
+ToggleButton.BackgroundTransparency = 0.5
+ToggleButton.Position = UDim2.new(0, 10, 0, 60)
+ToggleButton.Size = UDim2.new(0, 180, 0, 20)
+ToggleButton.Font = Enum.Font.SourceSans
+ToggleButton.FontSize = Enum.FontSize.Size14
+ToggleButton.Text = "Toggle Spam"
+ToggleButton.TextColor3 = Color3.new(1, 1, 1)
+
+ToggleLabel.Name = "ToggleLabel"
+ToggleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+ToggleLabel.BackgroundTransparency = 0.5
+ToggleLabel.Position = UDim2.new(0, 10, 0, 85)
+ToggleLabel.Size = UDim2.new(0, 180, 0, 20)
+ToggleLabel.Font = Enum.Font.SourceSans
+ToggleLabel.FontSize = Enum.FontSize.Size14
+ToggleLabel.Text = "Spamming: Off"
+ToggleLabel.TextColor3 = Color3.new(1, 1, 1)
+
+FPSPingLabel.Name = "FPSPingLabel"
+FPSPingLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+FPSPingLabel.BackgroundTransparency = 0.5
+FPSPingLabel.Position = UDim2.new(0, 10, 0, 110)
+FPSPingLabel.Size = UDim2.new(0, 180, 0, 20)
+FPSPingLabel.Font = Enum.Font.SourceSans
+FPSPingLabel.FontSize = Enum.FontSize.Size14
+FPSPingLabel.Text = "FPS: 0 | Ping: 0"
+FPSPingLabel.TextColor3 = Color3.new(1, 1, 1)
+
+-- Add the UI elements to the GUI
+GUI.Parent = game.Players.LocalPlayer.PlayerGui
+MainFrame.Parent = GUI
+TargetPlayerLabel.Parent = MainFrame
+TargetPlayerDropdown.Parent = MainFrame
+ToggleButton.Parent = MainFrame
+ToggleLabel.Parent = MainFrame
+FPSPingLabel.Parent = MainFrame
+
+-- Script to handle the toggle button and spamming
+local spamming = false
+local targetPlayer = nil
+
+ToggleButton.MouseButton1Click:Connect(function()
+    spamming = not spamming
+    if spamming then
+        ToggleLabel.Text = "Spamming: On"
+        targetPlayer = TargetPlayerDropdown.SelectedItem.Text
+        -- Spam RPG to the target player
+        spawn(function()
+            pcall(function()
+                while wait() do
+                    pcall(function()
+                        if table.find(_G.SelectTraget,"Players") and _G.SpamRPG then
+                            for _,v in pairs(workspace:GetChildren()) do
+                                if v.Name == targetPlayer and v:FindFirstChild("HumanoidRootPart") and not table.find(_G.WL,v.Name) then
+                                    game:GetService("ReplicatedStorage"):WaitForChild("RocketSystem"):WaitForChild("RocketHit"):FireServer(v.HumanoidRootPart.Position,Vector3.yAxis,game:GetService("Players").LocalPlayer.Character.RPG,game:GetService("Players").LocalPlayer.Character.RPG,v.HumanoidRootPart)
+                                    wait()
+                                end
+                            end
+                        end
+                    end)
+                end
+            end)
+        end)
+    else
+        ToggleLabel.Text = "Spamming: Off"
+    end
+end)
+
+-- Update the FPS and ping label with the current FPS and ping
+local startTime, counter, oldfps = os.clock(), 0, nil;
+local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+runservice.Heartbeat:Connect(function()
+    FPSPingLabel.Text = "FPS: " .. tostring(math.floor(1 / (os.clock() - startTime)) .. " | Ping: " .. tostring(ping)
+    startTime = os.clock()
+end)
